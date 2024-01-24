@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using H_Sports.Interfaces;
 using H_Sports.Models;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace H_Sports.Controllers
 {
@@ -8,74 +10,93 @@ namespace H_Sports.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly IReviewRepository _reviewRepository;
+        private readonly IReviewRepository _reviewRepo;
 
         public ReviewController(IReviewRepository reviewRepository)
         {
-            _reviewRepository = reviewRepository;
+            _reviewRepo = reviewRepository;
         }
 
         // GET: api/Review
         [HttpGet("GetReviews")]
         public ActionResult<IEnumerable<Review>> Get()
         {
-            var reviews = _reviewRepository.GetReviews();
+            var reviews = _reviewRepo.GetReviews();
             return Ok(reviews);
         }
 
-        // GET: api/Review/5
-        [HttpGet("GetReviewById{id}")]
-        public ActionResult<Review> Get(string id)
-        {
-            var review = _reviewRepository.GetReviewById(id);
-
-            if (review == null)
-            {
-                return NotFound(); 
-            }
-
-            return Ok(review);
-        }
+       
 
         // POST: api/Review
-        [HttpPost("CreateReview{Usre ID},{ProductID},{Review}")]
-        public ActionResult Post([FromBody] Review review)
+        [HttpPost("CreateReview/{UserID}/{ProductID}/{Text}")]
+        public IActionResult CreateReview(int UserID, int ProductID, string Text)
         {
-            _reviewRepository.AddReview(review);
-            return CreatedAtAction(nameof(Get), new { ID = review.ID }, review);
-        }
+            
+                // Create the review
+                var review = new Review
+                {
+                    UserId = UserID,
+                    ProductID = ProductID,
+                    Text = Text
+                };
 
-        // PUT: api/Review/5
-        [HttpPut("Edit Review{Edit Review}")]
-        public ActionResult Put(string id, [FromBody] Review review)
-        {
-            var existingReview = _reviewRepository.GetReviewById(id);
+            try {
 
-            if (existingReview == null)
-            {
-                return NotFound(); 
+                int Id = 0; 
+                // Retrieve the saved reviews
+                var reviews = _reviewRepo.GetReviewById(Id);
+
+                if (reviews != null)
+                {
+                    return Ok(reviews);
+                    // Return the saved
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-
-            review.ID = existingReview.ID; // Ensure the new review has the correct id
-            _reviewRepository.EditReview(review);
-
-            return NoContent(); 
-        }
-
-        // DELETE: api/Review/5
-        [HttpDelete("Delete Review by ID{ID}")]
-        public ActionResult Delete(string id)
-        {
-            var existingReview = _reviewRepository.GetReviewById(id);
-
-            if (existingReview == null)
+            catch (Exception)
             {
-                return NotFound(); 
+
+                // Return a generic error response
+                return StatusCode(500, "Internal server error");
+
             }
-
-            _reviewRepository.DeleteReview(id);
-
-            return NoContent(); 
         }
-    }
-}
+    }  }
+    
+
+        //// PUT: api/Review/5
+        //[HttpPut("Edit Review{Edit Review}")]
+        //public ActionResult Put(string id, [FromBody] Review review)
+        //{
+        //    var existingReview = _reviewRepository.GetReviewById(id);
+
+        //    if (existingReview == null)
+        //    {
+        //        return NotFound(); 
+        //    }
+
+        //    review.ID = existingReview.ID; // Ensure the new review has the correct id
+        //    _reviewRepository.EditReview(review);
+
+        //    return NoContent(); 
+        //}
+
+        //// DELETE: api/Review/5
+        //[HttpDelete("Delete Review by ID{ID}")]
+        //public ActionResult Delete(string id)
+        //{
+        //    var existingReview = _reviewRepository.GetReviewById(id);
+
+        //    if (existingReview == null)
+        //    {
+        //        return NotFound(); 
+        //    }
+
+        //    _reviewRepository.DeleteReview(id);
+
+        //    return NoContent(); 
+        //}
+    

@@ -11,21 +11,23 @@ namespace H_Sports.Interfaces
         // Retrieve all reviews
          List<Review> GetReviews();
 
+        /// Add a new review
+        Review CreateReview( Review review);
 
         // Retrieve a review by its ID
-        Review GetReviewById(string ID);
+        Review GetReviewById(int ID);
 
 
-        // Add a new review
-        void AddReview(Review review);
 
 
-        // Edit an existing review
-        void EditReview(Review review);
+
+       
+        //// Edit an existing review
+        //void EditReview(Review review);
 
 
-        // Delete a review by its ID
-        void DeleteReview(string id); 
+        //// Delete a review by its ID
+        //void DeleteReview(string id); 
 
 
     }
