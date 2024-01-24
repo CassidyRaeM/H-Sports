@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using H_Sports.Interfaces;
 using H_Sports.Models;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace H_Sports.Controllers
 {
@@ -23,26 +25,13 @@ namespace H_Sports.Controllers
             return Ok(reviews);
         }
 
-        //// GET: api/Review/5
-        //[HttpGet("GetReviewById{id}")]
-        //public ActionResult<Review> Get(string id)
-        //{
-        //    var review = _reviewRepository.GetReviewById(id);
-
-        //    if (review == null)
-        //    {
-        //        return NotFound(); 
-        //    }
-
-        //    return Ok(review);
-        //}
+       
 
         // POST: api/Review
         [HttpPost("CreateReview/{UserID}/{ProductID}/{Text}")]
         public IActionResult CreateReview(int UserID, int ProductID, string Text)
         {
-            try
-            {
+            
                 // Create the review
                 var review = new Review
                 {
@@ -51,16 +40,16 @@ namespace H_Sports.Controllers
                     Text = Text
                 };
 
-                // Save the review to the repository 
-                _reviewRepo.CreateReview(review);
+            try {
 
-                // Retrieve the saved review by ID
-                var newReview = _reviewRepo.GetReviewById(review.Id); 
+                int Id = 0; 
+                // Retrieve the saved reviews
+                var reviews = _reviewRepo.GetReviewById(Id);
 
-                // Return the saved review if not null, otherwise BadRequest
-                if (newReview != null)
+                if (reviews != null)
                 {
-                    return Ok(newReview);
+                    return Ok(reviews);
+                    // Return the saved
                 }
                 else
                 {
@@ -68,14 +57,15 @@ namespace H_Sports.Controllers
                 }
             }
             catch (Exception)
-            { 
+            {
 
                 // Return a generic error response
                 return StatusCode(500, "Internal server error");
 
             }
         }
-
+    }  }
+    
 
         //// PUT: api/Review/5
         //[HttpPut("Edit Review{Edit Review}")]
@@ -109,5 +99,4 @@ namespace H_Sports.Controllers
 
         //    return NoContent(); 
         //}
-    }
-}
+    

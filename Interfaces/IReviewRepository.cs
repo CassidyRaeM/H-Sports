@@ -11,11 +11,14 @@ namespace H_Sports.Interfaces
         // Retrieve all reviews
          List<Review> GetReviews();
 
-        //// Add a new review
+        /// Add a new review
         Review CreateReview( Review review);
 
-        //// Retrieve a review by its ID
+        // Retrieve a review by its ID
         Review GetReviewById(int ID);
+
+
+
 
 
        
