@@ -52,7 +52,6 @@ namespace H_Sports.Repositories
                     cmd.Parameters.AddWithValue("@UserId", review.UserId);
                     cmd.Parameters.AddWithValue("@ProductID", review.ProductID);
                     cmd.Parameters.AddWithValue("@Text", review.Text);
-                      
                 }
                 return review;
             }
@@ -67,7 +66,8 @@ namespace H_Sports.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
 
                 {
-                    cmd.CommandText = "SELECT UserId, ProductID, Text FROM [Review] WHERE Id = @Id"; 
+                    cmd.CommandText = "SELECT UserId, ProductID, Text FROM [Review] WHERE Id = @Id";
+                    cmd.Parameters.AddWithValue("@Id", Id);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -78,7 +78,8 @@ namespace H_Sports.Repositories
                                 UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
                                 ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
                                 Text = reader.GetString(reader.GetOrdinal("Text")),
-                            };
+                                
+                        };
                             return review;
                         }
                     }

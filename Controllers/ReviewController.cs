@@ -31,7 +31,7 @@ namespace H_Sports.Controllers
         [HttpPost("CreateReview/{UserID}/{ProductID}/{Text}")]
         public IActionResult CreateReview(int UserID, int ProductID, string Text)
         {
-            
+            try { 
                 // Create the review
                 var review = new Review
                 {
@@ -39,32 +39,19 @@ namespace H_Sports.Controllers
                     ProductID = ProductID,
                     Text = Text
                 };
+            // Save the review
+            var savedReview = _reviewRepo.CreateReview(review);
 
-            try {
-
-                int Id = 0; 
-                // Retrieve the saved reviews
-                var reviews = _reviewRepo.GetReviewById(Id);
-
-                if (reviews != null)
-                {
-                    return Ok(reviews);
-                    // Return the saved
-                }
-                else
-                {
-                    return BadRequest();
-                }
-            }
-            catch (Exception)
-            {
-
-                // Return a generic error response
-                return StatusCode(500, "Internal server error");
-
-            }
+            return Ok(savedReview);
+                 }
+             catch (Exception)
+             {
+        // Return a generic error response
+            return StatusCode(500, "Internal server error");
+    }
+}
         }
-    }  }
+    }  
     
 
         //// PUT: api/Review/5
