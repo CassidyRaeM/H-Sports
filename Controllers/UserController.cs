@@ -63,24 +63,36 @@ namespace H_Sports.Controllers
 
 
         //POST: Create a new User 
-        [HttpPost("CreateUser{UserName},{Email}, {FirstName},{LastName}")]
-        public IActionResult CreateUser([FromBody] User newUser)
+        [HttpPost("CreateUser/{UserName}/{Email}/{FirstName}/{LastName}")]
+        public IActionResult CreateUser(string UserName, string Email, string FirstName, string LastName )
         {
+            User newUser = new User
+            { 
+                UserName = UserName, 
+                Email = Email, 
+                FirstName = FirstName, 
+                LastName = LastName
+            };
 
-           
-            if (newUser == null)
-            {
-                return BadRequest("Invalid user data");
-            }
 
             try
             {
-                // Use the CreateUser method from the repository
-                _userRepo.CreateUser(newUser);
+                //check null = 0
+                int Id = _userRepo.CreateUser(newUser);
 
-                
-                return CreatedAtAction(nameof(GetUserByUserName), new { userName = newUser.UserName }, newUser);
+
+                //Return New User 
+                var User = _userRepo.GetUserByID(Id);
+                if (User != null)
+                {
+                    return Ok(User);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
+
             catch (Exception ex)
             {
                 // Log the exception or handle it appropriately

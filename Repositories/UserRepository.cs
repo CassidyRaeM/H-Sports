@@ -1,7 +1,9 @@
 ﻿using H_Sports.Interfaces;
 using H_Sports.Models;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient; 
+using Microsoft.Data.SqlClient;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Connections;
 
 namespace H_Sports.Repositories
 {
@@ -74,7 +76,7 @@ namespace H_Sports.Repositories
             }
             return null;
         }
-        public void CreateUser(User newUser)
+        public int CreateUser(User newUser)
         {
             using (SqlConnection conn = Connection)
             {
@@ -83,21 +85,56 @@ namespace H_Sports.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO [User] (UserName, Email, FirstName, LastName)
-                                        VALUES (@UserName, @Email, @FirstName, @LastName)";
+                          OUTPUT INSERTED.ID
+                          VALUES (@UserName, @Email, @FirstName, @LastName)";
 
                     cmd.Parameters.AddWithValue("@UserName", newUser.UserName);
                     cmd.Parameters.AddWithValue("@Email", newUser.Email);
                     cmd.Parameters.AddWithValue("@FirstName", newUser.FirstName);
                     cmd.Parameters.AddWithValue("@LastName", newUser.LastName);
+                    int Id= (int)cmd.ExecuteScalar();
 
-                    cmd.ExecuteNonQuery();
+                    return Id; 
                 }
+
+
             }
         }
-
-        User IUserRepository.CreateUser(User user)
+        public User GetUserByID(int Id)  
         {
-            throw new NotImplementedException();
+
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+
+                {
+                    cmd.CommandText = @"Select Id, UserName, Email, FirstName, LastName FROM [User]
+                                        where Id= @Id";
+                    cmd.Parameters.AddWithValue("Id", Id);
+
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            User user = new User
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            };
+                            return user;
+                        }
+
+                    }
+                }
+            }
+            return null;
         }
     }
 }
