@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Connections;
+using static System.Net.Mime.MediaTypeNames;
+using System.Linq.Expressions;
 
 
 namespace H_Sports.Repositories
@@ -21,7 +23,7 @@ namespace H_Sports.Repositories
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT UserId, ProductID, Text FROM [Review]";
+                    cmd.CommandText = "SELECT UserId, ProductId, Text, Id FROM [Review]";
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         var reviews = new List<Review>();
@@ -30,8 +32,9 @@ namespace H_Sports.Repositories
                             Review review = new Review
                             {
                                 UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
-                                ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                                ProductId = reader.GetInt32(reader.GetOrdinal("ProductId")),
                                 Text = reader.GetString(reader.GetOrdinal("Text")),
+                                Id= reader.GetInt32(reader.GetOrdinal("ID")),   
                             };
                             reviews.Add(review);
                         }
@@ -40,24 +43,36 @@ namespace H_Sports.Repositories
                 }
             }
         }
-        public Review CreateReview(Review review)
+        public int? CreateReview(Review review)
         {
-            using (SqlConnection conn = Connection)
+            try
             {
-                conn.Open();
-
-                using (SqlCommand cmd = conn.CreateCommand())
+                using (SqlConnection conn = Connection)
                 {
-                    cmd.CommandText = @"INSERT INTO [Review] (UserId, ProductID, Text) VALUES (@UserId, @ProductID, @Text)";
-                    cmd.Parameters.AddWithValue("@UserId", review.UserId);
-                    cmd.Parameters.AddWithValue("@ProductID", review.ProductID);
-                    cmd.Parameters.AddWithValue("@Text", review.Text);
+                    conn.Open();
+
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"INSERT INTO [Review] (UserId, ProductId, [Text]) OUTPUT INSERTED.ID VALUES (@UserId, @ProductId, @Text)";
+                        cmd.Parameters.AddWithValue("@UserId", review.UserId);
+                        cmd.Parameters.AddWithValue("@ProductId", review.ProductId);
+                        cmd.Parameters.AddWithValue("@Text", review.Text);
+
+                        int Id = (int)cmd.ExecuteScalar();
+                        return Id;
+                    }
                 }
-                return review;
+
+                Console.WriteLine("Review added successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return null;
             }
         }
 
-        public Review GetReviewById(int Id)
+        public Review GetReviewById(int? Id)
         {
             using (SqlConnection conn = Connection)
             {
@@ -66,7 +81,7 @@ namespace H_Sports.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
 
                 {
-                    cmd.CommandText = "SELECT UserId, ProductID, Text FROM [Review] WHERE Id = @Id";
+                    cmd.CommandText = "SELECT UserId, ProductId, Text FROM [Review] WHERE Id = @Id";
                     cmd.Parameters.AddWithValue("@Id", Id);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -76,55 +91,153 @@ namespace H_Sports.Repositories
                             Review review = new Review
                             {
                                 UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
-                                ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                                ProductId = reader.GetInt32(reader.GetOrdinal("ProductId")),
                                 Text = reader.GetString(reader.GetOrdinal("Text")),
-                                
-                        };
+
+                            };
                             return review;
                         }
+                        
                     }
+                    
+                }
+            }
+            return null;
+        }
+
+
+        public Review EditReview(Review review)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                SqlTransaction transaction = null;
+
+                try
+                {
+                    using (SqlCommand checkCmd = conn.CreateCommand())
+                    {
+                        // Check if the review with the given ID exists
+                        checkCmd.CommandText = "SELECT COUNT(*) FROM [Review] WHERE Id = @Id";
+                        checkCmd.Parameters.AddWithValue("@Id", review.Id);
+
+                        int reviewCount = (int)checkCmd.ExecuteScalar();
+
+                        if (reviewCount == 0)
+                        {
+                            Console.WriteLine("Review not found.");
+                            return null;
+                        }
+                    }
+
+                    // Begin a transaction to ensure atomicity
+                    transaction = conn.BeginTransaction();
+
+                    // Update the review
+                    using (SqlCommand updateCmd = new SqlCommand("UPDATE [Review] SET UserId = @UserId, ProductId = @ProductId, [Text] = @Text WHERE Id = @ReviewId", conn, transaction))
+                    {
+                        updateCmd.Parameters.AddWithValue("@ReviewId", review.Id);
+                        updateCmd.Parameters.AddWithValue("@UserId", review.UserId);
+                        updateCmd.Parameters.AddWithValue("@ProductId", review.ProductId);
+                        updateCmd.Parameters.AddWithValue("@Text", review.Text);
+
+                        int rowsAffected = updateCmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            Console.WriteLine("Review updated successfully.");
+                            // Commit the transaction if update is successful
+                            transaction.Commit();
+                            return review;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed to update review.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
                     return null;
                 }
             }
+            return null;
         }
-    
 
-    
 
-//        public void EditReview(Review review)
-//        {
-//            using (SqlConnection conn = Connection)
-//            {
-//                //conn.Open();
+        ////public Review DeleteReview(string id)
+        ////{
+        ////    using (SqlConnection conn = Connection)
+        ////    {
+        // conn.Open();
 
-//                using (SqlCommand cmd = conn.CreateCommand())
-////                {
-////                    cmd.CommandText = "UPDATE [Review] SET UserId = @UserId, ProductID = @ProductID, Text = @Text WHERE ID = @ID";
-////                    cmd.Parameters.AddWithValue("@ID", review.UserId);  
-////                    cmd.Parameters.AddWithValue("@UserId", review.UserId);
-////                    cmd.Parameters.AddWithValue("@ProductID", review.ProductID);
-////                    cmd.Parameters.AddWithValue("@Text", review.Text);
+        ////        using (SqlCommand cmd = conn.CreateCommand())
+        ////        {
+        ////            cmd.CommandText = "DELETE FROM [Review] WHERE ID = @ID";
+        ////            cmd.Parameters.AddWithValue("@ID", id);
 
-////                    cmd.ExecuteNonQuery();
-////                }
-//            }
-//        }
+        ////            cmd.ExecuteNonQuery();
+        ////        }
+        ////        return null;
+        ////    }
 
-//        public void DeleteReview(string id)
-//        {
-//            using (SqlConnection conn = Connection)
-//            {
-//                conn.Open();
+        ////}
 
-//                using (SqlCommand cmd = conn.CreateCommand())
-//                {
-//                    cmd.CommandText = "DELETE FROM [Review] WHERE ID = @ID";
-//                    cmd.Parameters.AddWithValue("@ID", id);  // Assuming 'id' is the correct parameter
 
-//                    cmd.ExecuteNonQuery();
-//                }
-//            }
-//        }
- }
+
+
+
+
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
