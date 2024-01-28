@@ -14,7 +14,7 @@ namespace H_Sports.Interfaces
 
         User GetUserByUserName (string userName);  
         
-         int CreateUser (User user);
+        int CreateUser (User user);
         
         User GetUserByID (int Id);  
     }
