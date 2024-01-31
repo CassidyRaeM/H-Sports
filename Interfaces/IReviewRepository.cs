@@ -1,6 +1,7 @@
 ﻿using H_Sports.Models;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 
 
@@ -12,16 +13,18 @@ namespace H_Sports.Interfaces
          List<Review> GetReviews();
 
         /// Add a new review
-        int? CreateReview( Review review);
+        int CreateReview( Review review);
 
-        // Retrieve a review by its ID
-       Review GetReviewById(int? ID);
-
-        //// Edit an existing review
-        Review EditReview(Review review);
+        //// Retrieve a review by its ID
+        Review GetReviewById(int ID);
 
         //// Delete a review by its ID
-        //Review DeleteReview(Review review); 
+        void DeleteReview(int Id);
+
+
+        //// Edit Review by 
+        void EditReview(Review review); 
+      
 
 
     }
