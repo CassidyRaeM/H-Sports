@@ -28,6 +28,12 @@ namespace H_Sports.Controllers
             return Ok(reviews);
         }
 
+
+
+
+
+
+
         // POST: api/Review
         [HttpPost("CreateReview/{UserID}/{ProductId}/{Text}")]
         public IActionResult CreateReview(int UserID, int ProductId, string Text)
@@ -74,6 +80,60 @@ namespace H_Sports.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+
+
+
+
+
+
+
+        // PUT: api/Review/EditReview/{id}
+        // PUT: api/Review/EditReview/{id}
+        [HttpPut("EditReview/{id}")]
+        public IActionResult EditReview(int id, [FromBody] Review updatedReviewData)
+        {
+            try
+            {
+                // Validate input
+                if (id != updatedReviewData.Id)
+                {
+                    return BadRequest("Mismatched review ID in the request body");
+                }
+
+                // Check if the review exists
+                var existingReview = _reviewRepo.GetReviewById(id);
+
+                if (existingReview == null)
+                {
+                    return NotFound($"Review with ID {id} not found");
+                }
+
+                // Update only the Text field in the existing review
+                existingReview.Text = updatedReviewData.Text;
+
+                // Save the changes using the repository
+                _reviewRepo.EditReview(existingReview);
+
+                // Return the updated review
+                var updatedReview = _reviewRepo.GetReviewById(id);
+                return Ok(updatedReview);
+            }
+            catch (Exception)
+            {
+                // Return a generic error response
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+
+
+
+
+
+
+
 
         // DELETE: api/Review/DeleteReview/{id}
         [HttpDelete("DeleteReview/{id}")]

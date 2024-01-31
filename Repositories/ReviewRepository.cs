@@ -108,26 +108,24 @@ namespace H_Sports.Repositories
         }
 
 
+        public void EditReview(Review review)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
 
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE [Review] SET Text = @Text WHERE ID = @ID";
+                    cmd.Parameters.AddWithValue("@ID", review.UserId);
+                    cmd.Parameters.AddWithValue("@UserId", review.UserId);
+                    cmd.Parameters.AddWithValue("@ProductID", review.ProductId);
+                    cmd.Parameters.AddWithValue("@Text", review.Text);
 
-        //        public void EditReview(Review review)
-        //        {
-        //            using (SqlConnection conn = Connection)
-        //            {
-        //                //conn.Open();
-
-        //                using (SqlCommand cmd = conn.CreateCommand())
-        ////                {
-        ////                    cmd.CommandText = "UPDATE [Review] SET UserId = @UserId, ProductID = @ProductID, Text = @Text WHERE ID = @ID";
-        ////                    cmd.Parameters.AddWithValue("@ID", review.UserId);  
-        ////                    cmd.Parameters.AddWithValue("@UserId", review.UserId);
-        ////                    cmd.Parameters.AddWithValue("@ProductID", review.ProductID);
-        ////                    cmd.Parameters.AddWithValue("@Text", review.Text);
-
-        ////                    cmd.ExecuteNonQuery();
-        ////                }
-        //            }
-        //        }
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
 
         public void DeleteReview(int Id)
         {

@@ -1,6 +1,7 @@
 ﻿using H_Sports.Models;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 
 
@@ -20,6 +21,9 @@ namespace H_Sports.Interfaces
         //// Delete a review by its ID
         void DeleteReview(int Id);
 
+
+        //// Edit Review by 
+        void EditReview(Review review); 
       
 
 
