@@ -51,23 +51,28 @@ namespace H_Sports.Repositories
 
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"INSERT INTO [Review] (UserId, ProductId, Text) VALUES (@UserId, @ProductID, @Text)";
+                        cmd.CommandText = @"INSERT INTO [Review] (UserId, ProductId, Text) 
+                                OUTPUT INSERTED.ID
+                                VALUES (@UserId, @ProductID, @Text)";
                         cmd.Parameters.AddWithValue("@UserId", review.UserId);
                         cmd.Parameters.AddWithValue("@ProductID", review.ProductId);
                         cmd.Parameters.AddWithValue("@Text", review.Text);
 
-                        int Id = (int)cmd.ExecuteScalar();
+                        object result = cmd.ExecuteScalar();
+
+                        int Id = Convert.ToInt32(result);
                         return Id;
                     }
                 }
+                Console.WriteLine("Review added successfully.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
                 return 0;
             }
-            Console.WriteLine("Review added successfully.");
         }
+
 
 
 

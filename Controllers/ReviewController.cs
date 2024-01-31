@@ -52,7 +52,7 @@ namespace H_Sports.Controllers
                 var reviewId = _reviewRepo.CreateReview(review);
 
                 // Check if id exists
-                if (reviewId != null)
+                if (reviewId != 0)
                 {
                     // Return new user Id
                     var productReview = _reviewRepo.GetReviewById(reviewId);
@@ -75,34 +75,33 @@ namespace H_Sports.Controllers
             }
         }
 
-        //// PUT: api/Review/EditReview/{id}
-        //[HttpPut("EditReview/{id}")]
-        //public IActionResult EditReview(int id, Review updatedReview)
-        //{
-        //    try
-        //    {
-        //        var existingReview = _reviewRepo.GetReviewById(id);
+        // DELETE: api/Review/DeleteReview/{id}
+        [HttpDelete("DeleteReview/{id}")]
+        public IActionResult DeleteReview(int id)
+        {
+            try
+            {
+                // Check if the review exists
+                var existingReview = _reviewRepo.GetReviewById(id);
 
-        //        if (existingReview != null)
-        //        {
-        //            updatedReview.Id = existingReview.Id;
+                if (existingReview == null)
+                {
+                    return NotFound($"Review with ID {id} not found");
+                }
 
-        //            var result = _reviewRepo.EditReview(updatedReview);
+                // Delete the review using the repository
+                _reviewRepo.DeleteReview(id);
 
-        //            return Ok(result);
+                // Return a success message
+                return Ok($"Review with ID {id} deleted successfully");
+            }
+            catch (Exception)
+            {
+                // Return a generic error response
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
-        //        }
-        //        else
-        //        {
-        //            return BadRequest("Review not found");
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // Return a generic error response
-        //        return StatusCode(500, "Internal server error");
-        //    }
-        //}
-       
+
     }
 }
