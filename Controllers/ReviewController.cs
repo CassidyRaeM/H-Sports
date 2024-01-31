@@ -75,34 +75,34 @@ namespace H_Sports.Controllers
             }
         }
 
-        // PUT: api/Review/EditReview/{id}
-        [HttpPut("EditReview/{id}")]
-        public IActionResult EditReview(int id, Review updatedReview)
-        {
-            try
-            {
-                var existingReview = _reviewRepo.GetReviewById(id);
+        //// PUT: api/Review/EditReview/{id}
+        //[HttpPut("EditReview/{id}")]
+        //public IActionResult EditReview(int id, Review updatedReview)
+        //{
+        //    try
+        //    {
+        //        var existingReview = _reviewRepo.GetReviewById(id);
 
-                if (existingReview != null)
-                {
-                    updatedReview.Id = existingReview.Id;
+        //        if (existingReview != null)
+        //        {
+        //            updatedReview.Id = existingReview.Id;
 
-                    var result = _reviewRepo.EditReview(updatedReview);
+        //            var result = _reviewRepo.EditReview(updatedReview);
 
-                    return Ok(result);
+        //            return Ok(result);
 
-                }
-                else
-                {
-                    return BadRequest("Review not found");
-                }
-            }
-            catch (Exception)
-            {
-                // Return a generic error response
-                return StatusCode(500, "Internal server error");
-            }
-        }
+        //        }
+        //        else
+        //        {
+        //            return BadRequest("Review not found");
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // Return a generic error response
+        //        return StatusCode(500, "Internal server error");
+        //    }
+        //}
        
     }
 }

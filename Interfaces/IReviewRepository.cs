@@ -12,16 +12,15 @@ namespace H_Sports.Interfaces
          List<Review> GetReviews();
 
         /// Add a new review
-        int? CreateReview( Review review);
+        int CreateReview( Review review);
 
-        // Retrieve a review by its ID
-       Review GetReviewById(int? ID);
-
-        //// Edit an existing review
-        Review EditReview(Review review);
+        //// Retrieve a review by its ID
+        Review GetReviewById(int ID);
 
         //// Delete a review by its ID
-        //Review DeleteReview(Review review); 
+        void DeleteReview(int Id);
+
+      
 
 
     }
